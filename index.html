@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJMN Content Workflow Orchestration | Airtable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #F8FAFF;
+            --bg-secondary: #EEF2FF;
+            --bg-accent: #E0F2FE;
+            --bg-card: #FFFFFF;
+            
+            --brand-primary: #0EA5E9;
+            --brand-secondary: #06B6D4;
+            --brand-accent: #14B8A6;
+            --brand-dark: #0284C7;
+            --brand-light: #BAE6FD;
+            
+            --accent-warm: #F97316;
+            --accent-coral: #FB7185;
+            --accent-violet: #8B5CF6;
+            --accent-emerald: #10B981;
+            --accent-amber: #F59E0B;
+            
+            --text-primary: #0F172A;
+            --text-secondary: #334155;
+            --text-tertiary: #64748B;
+            --text-muted: #94A3B8;
+            
+            --border-light: rgba(15, 23, 42, 0.06);
+            --border-medium: rgba(15, 23, 42, 0.1);
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.12);
+            --shadow-3d: 0 20px 60px -15px rgba(0, 0, 0, 0.2);
+            --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.2);
+            
+            --sidebar-width: 320px;
+            --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            perspective: 1500px;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(180deg, var(--bg-accent) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .sidebar-header {
+            padding: 28px 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-mark {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 50%, var(--brand-accent) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+            transform: perspective(500px) rotateY(-5deg);
+            transition: transform 0.4s var(--transition-smooth);
+        }
+
+        .logo-mark:hover {
+            transform: perspective(500px) rotateY(5deg) scale(1.05);
+        }
+
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-mark svg {
+            width: 28px;
+            height: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-text {
+            flex: 1;
+        }
+
+        .logo-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .nav-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 16px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-wrapper::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .nav-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .nav-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border-medium);
+            border-radius: 10px;
+        }
+
+        .nav-group {
+            margin-bottom: 8px;
+        }
+
+        .nav-group-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 12px 12px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s var(--transition-smooth);
+            margin-bottom: 4px;
+            position: relative;
+            border: 2px solid transparent;
+            transform-style: preserve-3d;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, var(--brand-primary), var(--brand-secondary));
+            border-radius: 0 4px 4px 0;
+            transition: height 0.25s var(--transition-smooth);
+        }
+
+        .nav-item:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(6, 182, 212, 0.08) 100%);
+            border-color: rgba(14, 165, 233, 0.25);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.15);
+        }
+
+        .nav-item.active::before {
+            height: 24px;
+        }
+
+        .nav-item.completed {
+            opacity: 0.7;
+        }
+
+        .nav-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            transition: all 0.3s var(--transition-smooth);
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05);
+        }
+
+        .nav-item.active .nav-number {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: scale(1.08) translateZ(10px);
+        }
+
+        .nav-item.completed .nav-number {
+            background: linear-gradient(135deg, var(--accent-emerald), #34D399);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .nav-item.completed .nav-number span {
+            display: none;
+        }
+
+        .nav-item.completed .nav-number::after {
+            content: '✓';
+            font-size: 0.75rem;
+        }
+
+        .nav-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            line-height: 1.3;
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .progress-section {
+            padding: 20px 24px 28px;
+            border-top: 1px solid var(--border-light);
+            background: var(--bg-secondary);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .progress-counter {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+
+        .progress-track {
+            height: 10px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-primary) 0%, var(--brand-secondary) 50%, var(--brand-accent) 100%);
+            border-radius: 12px;
+            transition: width 0.5s var(--transition-smooth);
+            position: relative;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+
+        .bg-mesh {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% -20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 50%, rgba(20, 184, 166, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--brand-light), rgba(6, 182, 212, 0.3));
+            top: -250px;
+            right: -150px;
+            animation: orbFloat 25s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.25), rgba(16, 185, 129, 0.2));
+            bottom: -200px;
+            left: -150px;
+            animation: orbFloat 30s ease-in-out infinite reverse;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(0, -60px) scale(1); }
+            75% { transform: translate(-30px, -30px) scale(0.95); }
+        }
+
+        /* ===== SLIDES ===== */
+        .slides-container {
+            position: relative;
+            height: 100%;
+            z-index: 1;
+            perspective: 2000px;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 70px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(100px) rotateY(-5deg);
+            transition: all 0.7s var(--transition-smooth);
+            transform-style: preserve-3d;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0) rotateY(0);
+        }
+
+        .slide-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            max-width: 1400px;
+            width: 100%;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        .slide-inner.centered {
+            grid-template-columns: 1fr;
+            text-align: center;
+            max-width: 1100px;
+        }
+
+        .slide-inner.wide {
+            max-width: 1500px;
+        }
+
+        /* Text Content */
+        .text-content {
+            max-width: 600px;
+            transform: translateZ(20px);
+        }
+
+        .slide-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--brand-primary);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.8);
+            transform: translateZ(30px);
+        }
+
+        .slide-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .slide-title .gradient {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 50%, var(--brand-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-desc {
+            font-size: 1.15rem;
+            line-height: 1.75;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        /* Feature List */
+        .features {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .feature-item:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+            transform: perspective(200px) rotateY(-5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-item:hover .feature-icon {
+            transform: perspective(200px) rotateY(10deg) scale(1.1);
+        }
+
+        .feature-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+
+        .feature-text {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .feature-text strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 3D Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            perspective: 1000px;
+        }
+
+        .cards-grid.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .cards-grid.cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.4s var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(0) rotateY(0);
+            box-shadow: 
+                0 10px 40px rgba(0,0,0,0.08),
+                0 2px 10px rgba(0,0,0,0.04),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--brand-accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s var(--transition-smooth);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: perspective(1000px) rotateX(-5deg) rotateY(5deg) translateY(-10px) translateZ(20px);
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.15),
+                0 10px 20px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(14, 165, 233, 0.2);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 
+                0 8px 25px rgba(0,0,0,0.2),
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                inset 0 -2px 0 rgba(0,0,0,0.1);
+            transform: translateZ(20px);
+        }
+
+        .card-icon.sky { background: linear-gradient(135deg, #0EA5E9 0%, #38BDF8 100%); }
+        .card-icon.violet { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); }
+        .card-icon.emerald { background: linear-gradient(135deg, #10B981 0%, #34D399 100%); }
+        .card-icon.amber { background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%); }
+        .card-icon.coral { background: linear-gradient(135deg, #F97316 0%, #FB923C 100%); }
+        .card-icon.rose { background: linear-gradient(135deg, #FB7185 0%, #FDA4AF 100%); }
+
+        .card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            line-height: 1.5;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 32px;
+            perspective: 1000px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 18px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.4s var(--transition-smooth);
+            transform-style: preserve-3d;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .stat-box:hover {
+            transform: perspective(500px) rotateX(-5deg) translateY(-8px);
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.12),
+                0 0 0 1px rgba(14, 165, 233, 0.15);
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(14, 165, 233, 0.2);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 24px 28px;
+            border-radius: 20px;
+            margin: 24px 0;
+            border: 1px solid;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: all 0.3s var(--transition-smooth);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+
+        .info-box:hover {
+            transform: translateY(-4px) translateZ(10px);
+        }
+
+        .info-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            border-radius: 6px 0 0 6px;
+        }
+
+        .info-box.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .info-box.success::before {
+            background: linear-gradient(180deg, #10B981, #34D399);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .info-box.warning {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05));
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .info-box.warning::before {
+            background: linear-gradient(180deg, #EF4444, #F87171);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .info-box.info {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(56, 189, 248, 0.05));
+            border-color: rgba(14, 165, 233, 0.25);
+        }
+
+        .info-box.info::before {
+            background: linear-gradient(180deg, #0EA5E9, #38BDF8);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .info-box-header {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box.success .info-box-header { color: #059669; }
+        .info-box.warning .info-box-header { color: #DC2626; }
+        .info-box.info .info-box-header { color: #0284C7; }
+
+        .info-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: 
+                0 15px 50px rgba(0,0,0,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            transform: perspective(1000px) rotateX(2deg);
+            transition: transform 0.4s var(--transition-smooth);
+        }
+
+        .data-table:hover {
+            transform: perspective(1000px) rotateX(0);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 16px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            background: linear-gradient(180deg, var(--bg-secondary), rgba(241, 245, 249, 0.5));
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .data-table th:first-child {
+            text-align: left;
+        }
+
+        .data-table td {
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(14, 165, 233, 0.03);
+        }
+
+        .data-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .data-table .yes { color: var(--accent-emerald); font-weight: 700; }
+        .data-table .no { color: #EF4444; font-weight: 700; }
+        .data-table .partial { color: var(--accent-amber); font-weight: 700; }
+
+        /* Visual Block */
+        .visual-block {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateZ(40px);
+        }
+
+        .visual-wrapper {
+            width: 100%;
+            max-width: 550px;
+            aspect-ratio: 1;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .visual-wrapper svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1));
+        }
+
+        /* SVG Animations */
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 0.95; }
+        }
+
+        @keyframes rotate-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes float-3d {
+            0%, 100% { transform: translateY(0) translateZ(0) rotateX(0); }
+            50% { transform: translateY(-12px) translateZ(15px) rotateX(5deg); }
+        }
+
+        @keyframes dash-flow {
+            to { stroke-dashoffset: -30; }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.4)); }
+            50% { filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.7)); }
+        }
+
+        @keyframes scale-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .anim-pulse { animation: pulse-soft 4s ease-in-out infinite; }
+        .anim-rotate { animation: rotate-slow 40s linear infinite; transform-origin: center; }
+        .anim-rotate-r { animation: rotate-reverse 35s linear infinite; transform-origin: center; }
+        .anim-float { animation: float-gentle 5s ease-in-out infinite; }
+        .anim-float-3d { animation: float-3d 6s ease-in-out infinite; }
+        .anim-dash { stroke-dasharray: 8 6; animation: dash-flow 1.5s linear infinite; }
+        .anim-glow { animation: glow-pulse 3s ease-in-out infinite; }
+        .anim-bounce { animation: scale-bounce 3s ease-in-out infinite; }
+        .anim-swing { animation: swing 4s ease-in-out infinite; transform-origin: center top; }
+
+        /* Impact Grid */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            perspective: 1000px;
+        }
+
+        .impact-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 30px 22px;
+            text-align: center;
+            position: relative;
+            transition: all 0.4s var(--transition-smooth);
+            transform-style: preserve-3d;
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.06),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .impact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary), var(--brand-accent));
+            border-radius: 0 0 8px 8px;
+        }
+
+        .impact-item:hover {
+            transform: perspective(800px) rotateX(-8deg) translateY(-12px);
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.12),
+                0 0 0 1px rgba(14, 165, 233, 0.2);
+        }
+
+        .impact-emoji {
+            font-size: 2.8rem;
+            margin-bottom: 18px;
+            display: block;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        .impact-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .impact-label {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+        }
+
+        /* Final Slide */
+        .final-content {
+            text-align: center;
+        }
+
+        .final-content .slide-title {
+            font-size: 3.5rem;
+        }
+
+        .final-goals {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: 48px 0;
+            perspective: 1000px;
+        }
+
+        .goal-item {
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.4s var(--transition-smooth);
+        }
+
+        .goal-item:hover {
+            transform: translateZ(30px) rotateY(10deg);
+        }
+
+        .goal-icon {
+            width: 95px;
+            height: 95px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            margin: 0 auto 18px;
+            transition: all 0.4s var(--transition-smooth);
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.1),
+                inset 0 2px 0 rgba(255,255,255,0.5),
+                inset 0 -3px 0 rgba(0,0,0,0.05);
+        }
+
+        .goal-item:hover .goal-icon {
+            transform: scale(1.15) rotateY(-10deg) rotateX(5deg);
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.15),
+                inset 0 2px 0 rgba(255,255,255,0.5);
+        }
+
+        .goal-item:nth-child(1) .goal-icon { background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.1)); }
+        .goal-item:nth-child(2) .goal-icon { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.1)); }
+        .goal-item:nth-child(3) .goal-icon { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.1)); }
+        .goal-item:nth-child(4) .goal-icon { background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(251, 146, 60, 0.1)); }
+
+        .goal-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            padding: 22px 48px;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 40px;
+            box-shadow: 
+                0 15px 45px rgba(14, 165, 233, 0.4),
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                inset 0 -3px 0 rgba(0,0,0,0.1);
+            transition: all 0.4s var(--transition-smooth);
+            transform-style: preserve-3d;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-6px) rotateX(-5deg) scale(1.03);
+            box-shadow: 
+                0 25px 60px rgba(14, 165, 233, 0.5),
+                inset 0 2px 0 rgba(255,255,255,0.3);
+        }
+
+        /* Navigation Arrows */
+        .arrows {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .arrow-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s var(--transition-smooth);
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            transform-style: preserve-3d;
+        }
+
+        .arrow-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+            color: white;
+            border-color: transparent;
+            transform: translateY(-4px) rotateX(-5deg) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(14, 165, 233, 0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .arrow-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .arrow-btn svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        /* Keyboard Hints */
+        .nav-controls {
+            position: fixed;
+            bottom: 32px;
+            left: calc(var(--sidebar-width) + 32px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 
+                0 2px 8px rgba(0,0,0,0.06),
+                inset 0 -2px 0 rgba(0,0,0,0.04);
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 4px 12px rgba(14, 165, 233, 0.15),
+                inset 0 -2px 0 rgba(0,0,0,0.04);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .nav-btn kbd {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .nav-btn:hover kbd {
+            color: var(--brand-primary);
+        }
+
+        .nav-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border-medium);
+            margin: 0 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .slide-inner {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .visual-block {
+                order: -1;
+            }
+
+            .visual-wrapper {
+                max-width: 450px;
+            }
+
+            .impact-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            :root {
+                --sidebar-width: 80px;
+            }
+
+            .logo-text,
+            .nav-group-title,
+            .nav-label,
+            .progress-info {
+                display: none;
+            }
+
+            .sidebar-header {
+                padding: 20px 16px;
+            }
+
+            .logo-mark {
+                width: 44px;
+                height: 44px;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 14px;
+            }
+
+            .slide {
+                padding: 30px 40px;
+            }
+
+            .slide-title {
+                font-size: 2.4rem;
+            }
+
+            .nav-controls {
+                left: calc(var(--sidebar-width) + 16px);
+                bottom: 16px;
+            }
+
+            .nav-btn kbd {
+                width: 38px;
+                height: 38px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cards-grid,
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .final-goals {
+                flex-wrap: wrap;
+                gap: 30px;
+            }
+
+            .stats-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-mark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <div class="logo-title">AJMN Workflows</div>
+                        <div class="logo-subtitle">Content Orchestration</div>
+                    </div>
+                </div>
+            </header>
+
+            <nav class="nav-wrapper" id="navWrapper"></nav>
+
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span class="progress-text">Progress</span>
+                    <span class="progress-counter" id="progressCounter">1 / 12</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar" style="width: 8.33%"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <div class="bg-mesh"></div>
+            <div class="bg-grid"></div>
+            <div class="bg-orb bg-orb-1"></div>
+            <div class="bg-orb bg-orb-2"></div>
+
+            <div class="slides-container">
+                <!-- Slide 1: Executive Summary -->
+                <section class="slide active" data-slide="1">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">🎯 Executive Summary</span>
+                            <h1 class="slide-title"><span class="gradient">Airtable</span> is not a task tool.</h1>
+                            <p class="slide-desc">It is an operational coordination layer across media workflows. Leading media organizations use it to connect production, marketing, editorial, and distribution.</p>
+                            
+                            <div class="cards-grid">
+                                <div class="card">
+                                    <div class="card-icon sky">N</div>
+                                    <div class="card-title">Netflix</div>
+                                    <div class="card-text">5,400 users • 3x productivity</div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-icon coral">A</div>
+                                    <div class="card-title">Amazon Studios</div>
+                                    <div class="card-text">75% less manual work</div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-icon violet">D</div>
+                                    <div class="card-title">Disney</div>
+                                    <div class="card-text">90% manual entry eliminated</div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-icon emerald">H</div>
+                                    <div class="card-title">Hulu</div>
+                                    <div class="card-text">$2.6M annual savings</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <defs>
+                                        <linearGradient id="gradMain" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0EA5E9"/>
+                                            <stop offset="50%" stop-color="#06B6D4"/>
+                                            <stop offset="100%" stop-color="#14B8A6"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradSky" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0EA5E9"/>
+                                            <stop offset="100%" stop-color="#38BDF8"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradTeal" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#06B6D4"/>
+                                            <stop offset="100%" stop-color="#22D3EE"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#10B981"/>
+                                            <stop offset="100%" stop-color="#34D399"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradAmber" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#F59E0B"/>
+                                            <stop offset="100%" stop-color="#FBBF24"/>
+                                        </linearGradient>
+                                        <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                        <filter id="shadow3d" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+                                        </filter>
+                                        <filter id="innerShadow">
+                                            <feOffset dx="0" dy="2"/>
+                                            <feGaussianBlur stdDeviation="2" result="offset-blur"/>
+                                            <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+                                            <feFlood flood-color="white" flood-opacity="0.4" result="color"/>
+                                            <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+                                            <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- 3D Outer rings -->
+                                    <ellipse class="anim-rotate" cx="200" cy="200" rx="170" ry="85" fill="none" stroke="url(#gradMain)" stroke-width="2" stroke-dasharray="10 8" opacity="0.4" transform="rotate(-15 200 200)"/>
+                                    <ellipse class="anim-rotate-r" cx="200" cy="200" rx="150" ry="75" fill="none" stroke="url(#gradTeal)" stroke-width="1.5" opacity="0.3" transform="rotate(15 200 200)"/>
+                                    
+                                    <!-- Connection lines with 3D effect -->
+                                    <g class="anim-dash" stroke-width="3" fill="none" opacity="0.9">
+                                        <path d="M200 145 L200 60" stroke="url(#gradSky)" filter="url(#glow1)"/>
+                                        <path d="M255 200 L340 200" stroke="url(#gradTeal)" filter="url(#glow1)"/>
+                                        <path d="M200 255 L200 340" stroke="url(#gradEmerald)" filter="url(#glow1)"/>
+                                        <path d="M145 200 L60 200" stroke="url(#gradAmber)" filter="url(#glow1)"/>
+                                    </g>
+                                    
+                                    <!-- 3D Center hub -->
+                                    <g class="anim-pulse" filter="url(#shadow3d)">
+                                        <ellipse cx="200" cy="210" rx="62" ry="20" fill="rgba(14, 165, 233, 0.3)"/>
+                                        <circle cx="200" cy="200" r="62" fill="url(#gradMain)" filter="url(#innerShadow)"/>
+                                        <ellipse cx="200" cy="185" rx="45" ry="15" fill="rgba(255,255,255,0.2)"/>
+                                        <text x="200" y="195" text-anchor="middle" fill="white" font-family="Sora" font-size="15" font-weight="700">Airtable</text>
+                                        <text x="200" y="214" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="9">Coordination Layer</text>
+                                    </g>
+                                    
+                                    <!-- 3D Orbital nodes -->
+                                    <g class="anim-float-3d" filter="url(#shadow3d)">
+                                        <ellipse cx="200" cy="58" rx="38" ry="12" fill="rgba(14, 165, 233, 0.2)"/>
+                                        <circle cx="200" cy="45" r="42" fill="white" stroke="url(#gradSky)" stroke-width="3"/>
+                                        <ellipse cx="200" cy="32" rx="28" ry="8" fill="rgba(14, 165, 233, 0.1)"/>
+                                        <text x="200" y="42" text-anchor="middle" font-size="20">🎬</text>
+                                        <text x="200" y="62" text-anchor="middle" fill="#0284C7" font-size="10" font-weight="700">Production</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.5s" filter="url(#shadow3d)">
+                                        <ellipse cx="355" cy="208" rx="38" ry="12" fill="rgba(6, 182, 212, 0.2)"/>
+                                        <circle cx="355" cy="195" r="42" fill="white" stroke="url(#gradTeal)" stroke-width="3"/>
+                                        <ellipse cx="355" cy="182" rx="28" ry="8" fill="rgba(6, 182, 212, 0.1)"/>
+                                        <text x="355" y="192" text-anchor="middle" font-size="20">📢</text>
+                                        <text x="355" y="212" text-anchor="middle" fill="#0891B2" font-size="10" font-weight="700">Marketing</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 1s" filter="url(#shadow3d)">
+                                        <ellipse cx="200" cy="358" rx="38" ry="12" fill="rgba(16, 185, 129, 0.2)"/>
+                                        <circle cx="200" cy="345" r="42" fill="white" stroke="url(#gradEmerald)" stroke-width="3"/>
+                                        <ellipse cx="200" cy="332" rx="28" ry="8" fill="rgba(16, 185, 129, 0.1)"/>
+                                        <text x="200" y="342" text-anchor="middle" font-size="20">✏️</text>
+                                        <text x="200" y="362" text-anchor="middle" fill="#059669" font-size="10" font-weight="700">Editorial</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 1.5s" filter="url(#shadow3d)">
+                                        <ellipse cx="45" cy="208" rx="38" ry="12" fill="rgba(245, 158, 11, 0.2)"/>
+                                        <circle cx="45" cy="195" r="42" fill="white" stroke="url(#gradAmber)" stroke-width="3"/>
+                                        <ellipse cx="45" cy="182" rx="28" ry="8" fill="rgba(245, 158, 11, 0.1)"/>
+                                        <text x="45" y="192" text-anchor="middle" font-size="20">🚀</text>
+                                        <text x="45" y="212" text-anchor="middle" fill="#D97706" font-size="10" font-weight="700">Distribution</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 2: Why Workflow Tracking - FIXED -->
+                <section class="slide" data-slide="2">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">💡 The Why</span>
+                            <h1 class="slide-title">Why <span class="gradient">Workflow Tracking</span> Matters</h1>
+                            
+                            <ul class="features">
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Better resource management</strong> & capacity planning across teams</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Reduced manual data entry</strong> → significant cost savings</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Improved visibility</strong> and accountability at every stage</span>
+                                </li>
+                            </ul>
+
+                            <div class="info-box success">
+                                <div class="info-box-header">✓ Industry Reality</div>
+                                <p>Large media organizations invest in workflow systems to reduce operational cost, improve speed to market, and reduce dependency on manual coordination.</p>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 420">
+                                    <defs>
+                                        <filter id="card3d" x="-20%" y="-20%" width="140%" height="150%">
+                                            <feDropShadow dx="0" dy="10" stdDeviation="15" flood-opacity="0.1"/>
+                                        </filter>
+                                        <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#FFFFFF"/>
+                                            <stop offset="100%" stop-color="#F8FAFC"/>
+                                        </linearGradient>
+                                    </defs>
+                                    
+                                    <!-- 3D Pipeline Card -->
+                                    <g filter="url(#card3d)" class="anim-float-3d">
+                                        <!-- Card shadow/depth -->
+                                        <path d="M30 90 L370 90 L380 100 L380 170 L370 180 L30 180 Z" fill="rgba(0,0,0,0.05)"/>
+                                        <!-- Card face -->
+                                        <rect x="25" y="50" width="350" height="80" rx="20" fill="url(#cardGrad)" stroke="#E2E8F0" stroke-width="2"/>
+                                        <!-- Card top highlight -->
+                                        <rect x="25" y="50" width="350" height="25" rx="20" fill="rgba(255,255,255,0.6)"/>
+                                        
+                                        <!-- 3D Stage Pills -->
+                                        <g transform="translate(50, 75)">
+                                            <rect x="0" y="0" width="90" height="40" rx="12" fill="url(#gradSky)"/>
+                                            <rect x="0" y="0" width="90" height="15" rx="12" fill="rgba(255,255,255,0.3)"/>
+                                            <text x="45" y="26" text-anchor="middle" fill="white" font-size="12" font-weight="700">Planning</text>
+                                        </g>
+                                        
+                                        <g transform="translate(155, 75)">
+                                            <rect x="0" y="0" width="90" height="40" rx="12" fill="url(#gradTeal)"/>
+                                            <rect x="0" y="0" width="90" height="15" rx="12" fill="rgba(255,255,255,0.3)"/>
+                                            <text x="45" y="26" text-anchor="middle" fill="white" font-size="12" font-weight="700">Production</text>
+                                        </g>
+                                        
+                                        <g transform="translate(260, 75)">
+                                            <rect x="0" y="0" width="90" height="40" rx="12" fill="url(#gradEmerald)"/>
+                                            <rect x="0" y="0" width="90" height="15" rx="12" fill="rgba(255,255,255,0.3)"/>
+                                            <text x="45" y="26" text-anchor="middle" fill="white" font-size="12" font-weight="700">Delivery</text>
+                                        </g>
+                                    </g>
+                                    
+                                    <!-- Connection line -->
+                                    <line x1="200" y1="135" x2="200" y2="170" stroke="#CBD5E1" stroke-width="3" stroke-dasharray="6 4"/>
+                                    
+                                    <!-- 3D Benefits Card -->
+                                    <g filter="url(#card3d)" class="anim-float-3d" style="animation-delay: 0.3s">
+                                        <!-- Card shadow -->
+                                        <path d="M30 215 L370 215 L380 225 L380 295 L370 305 L30 305 Z" fill="rgba(0,0,0,0.05)"/>
+                                        <!-- Card face -->
+                                        <rect x="25" y="175" width="350" height="80" rx="20" fill="url(#cardGrad)" stroke="#E2E8F0" stroke-width="2"/>
+                                        <rect x="25" y="175" width="350" height="25" rx="20" fill="rgba(255,255,255,0.6)"/>
+                                        
+                                        <!-- Benefits with proper positioning -->
+                                        <g transform="translate(55, 200)">
+                                            <circle cx="22" cy="20" r="22" fill="#DBEAFE"/>
+                                            <circle cx="22" cy="15" r="15" fill="rgba(255,255,255,0.5)"/>
+                                            <text x="22" y="26" text-anchor="middle" font-size="18">💰</text>
+                                            <text x="70" y="26" fill="#0F172A" font-size="11" font-weight="700">Cost Savings</text>
+                                        </g>
+                                        
+                                        <g transform="translate(165, 200)">
+                                            <circle cx="22" cy="20" r="22" fill="#CCFBF1"/>
+                                            <circle cx="22" cy="15" r="15" fill="rgba(255,255,255,0.5)"/>
+                                            <text x="22" y="26" text-anchor="middle" font-size="18">⚡</text>
+                                            <text x="60" y="26" fill="#0F172A" font-size="11" font-weight="700">Speed</text>
+                                        </g>
+                                        
+                                        <g transform="translate(265, 200)">
+                                            <circle cx="22" cy="20" r="22" fill="#D1FAE5"/>
+                                            <circle cx="22" cy="15" r="15" fill="rgba(255,255,255,0.5)"/>
+                                            <text x="22" y="26" text-anchor="middle" font-size="18">👁️</text>
+                                            <text x="68" y="26" fill="#0F172A" font-size="11" font-weight="700">Visibility</text>
+                                        </g>
+                                    </g>
+                                    
+                                    <!-- Connection line -->
+                                    <line x1="200" y1="260" x2="200" y2="295" stroke="#CBD5E1" stroke-width="3" stroke-dasharray="6 4"/>
+                                    
+                                    <!-- 3D Result Button -->
+                                    <g filter="url(#card3d)" class="anim-bounce">
+                                        <!-- Button shadow -->
+                                        <ellipse cx="200" cy="370" rx="130" ry="15" fill="rgba(14, 165, 233, 0.25)"/>
+                                        <!-- Button body -->
+                                        <rect x="70" y="305" width="260" height="55" rx="18" fill="url(#gradMain)"/>
+                                        <!-- Button highlight -->
+                                        <rect x="70" y="305" width="260" height="20" rx="18" fill="rgba(255,255,255,0.25)"/>
+                                        <!-- Button text -->
+                                        <text x="200" y="340" text-anchor="middle" fill="white" font-family="Sora" font-size="16" font-weight="800">Single Source of Truth</text>
+                                    </g>
+                                    
+                                    <!-- Bottom labels -->
+                                    <g transform="translate(45, 395)">
+                                        <text x="0" y="0" fill="#64748B" font-size="11" font-weight="500">📊 Reliable Reports</text>
+                                        <text x="125" y="0" fill="#64748B" font-size="11" font-weight="500">🤖 AI-Ready Data</text>
+                                        <text x="260" y="0" fill="#64748B" font-size="11" font-weight="500">🔗 Connected Teams</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 3: Cost of Tools - FIXED VALUE label -->
+                <section class="slide" data-slide="3">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">💰 Investment</span>
+                            <h1 class="slide-title">Cost of Tools: <span class="gradient">Cost of Business</span></h1>
+                            <p class="slide-desc">Enterprise tooling is not optional — it's part of operational infrastructure that scales with your organization.</p>
+                            
+                            <ul class="features">
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text">Cost varies by <strong>organization size</strong> and enterprise contracts</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text">Per-user cost <strong>decreases at scale</strong></span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text">Vendor support and <strong>services increase</strong> with enterprise deals</span>
+                                </li>
+                            </ul>
+                            
+                            <div class="stats-row">
+                                <div class="stat-box">
+                                    <div class="stat-value">5,400+</div>
+                                    <div class="stat-label">Netflix Users</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">CoE</div>
+                                    <div class="stat-label">Center of Excellence</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">Team</div>
+                                    <div class="stat-label">Dedicated Support</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 420">
+                                    <defs>
+                                        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#FBBF24"/>
+                                            <stop offset="100%" stop-color="#F59E0B"/>
+                                        </linearGradient>
+                                        <linearGradient id="coinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stop-color="#FDE68A"/>
+                                            <stop offset="50%" stop-color="#FBBF24"/>
+                                            <stop offset="100%" stop-color="#D97706"/>
+                                        </linearGradient>
+                                        <filter id="scaleShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feDropShadow dx="0" dy="15" stdDeviation="20" flood-opacity="0.15"/>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- 3D Balance Scale -->
+                                    <g class="anim-swing" filter="url(#scaleShadow)">
+                                        <!-- Base with 3D effect -->
+                                        <polygon points="200,370 155,410 245,410" fill="#CBD5E1"/>
+                                        <polygon points="200,370 175,410 155,410" fill="#94A3B8"/>
+                                        
+                                        <!-- 3D Pole -->
+                                        <rect x="192" y="190" width="16" height="180" rx="8" fill="linear-gradient(90deg, #94A3B8, #CBD5E1, #94A3B8)"/>
+                                        
+                                        <!-- Center pivot with 3D -->
+                                        <circle cx="200" cy="190" r="20" fill="url(#gradMain)"/>
+                                        <circle cx="200" cy="185" r="12" fill="rgba(255,255,255,0.3)"/>
+                                        
+                                        <!-- Beam with 3D tilt -->
+                                        <path d="M50 210 Q200 180 350 160" stroke="#64748B" stroke-width="10" stroke-linecap="round" fill="none"/>
+                                        <path d="M50 205 Q200 175 350 155" stroke="#94A3B8" stroke-width="6" stroke-linecap="round" fill="none"/>
+                                        
+                                        <!-- Left side - COST (higher = lighter) -->
+                                        <g>
+                                            <line x1="70" y1="210" x2="70" y2="270" stroke="#94A3B8" stroke-width="4"/>
+                                            
+                                            <!-- 3D Pan -->
+                                            <ellipse cx="70" cy="290" rx="55" ry="15" fill="#94A3B8"/>
+                                            <ellipse cx="70" cy="285" rx="55" ry="15" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="2"/>
+                                            
+                                            <!-- Cost label -->
+                                            <rect x="35" y="235" width="70" height="26" rx="8" fill="#FEE2E2"/>
+                                            <text x="70" y="253" text-anchor="middle" fill="#DC2626" font-family="Sora" font-size="12" font-weight="800">COST</text>
+                                            
+                                            <!-- Small coins (less weight) -->
+                                            <circle cx="50" cy="275" r="12" fill="#FECACA"/>
+                                            <circle cx="70" cy="272" r="10" fill="#FCA5A5"/>
+                                            <circle cx="90" cy="275" r="11" fill="#FECACA"/>
+                                        </g>
+                                        
+                                        <!-- Right side - VALUE (lower = heavier) -->
+                                        <g>
+                                            <line x1="330" y1="160" x2="330" y2="90" stroke="#94A3B8" stroke-width="4"/>
+                                            
+                                            <!-- 3D Pan -->
+                                            <ellipse cx="330" cy="75" rx="60" ry="18" fill="#94A3B8"/>
+                                            <ellipse cx="330" cy="70" rx="60" ry="18" fill="#D1FAE5" stroke="#6EE7B7" stroke-width="2"/>
+                                            
+                                            <!-- VALUE label - FIXED -->
+                                            <rect x="290" y="20" width="80" height="28" rx="10" fill="#D1FAE5"/>
+                                            <text x="330" y="40" text-anchor="middle" fill="#059669" font-family="Sora" font-size="13" font-weight="800">VALUE</text>
+                                            
+                                            <!-- Stacked 3D coins (more weight) -->
+                                            <ellipse cx="305" cy="68" rx="14" ry="5" fill="#34D399"/>
+                                            <ellipse cx="305" cy="63" rx="14" ry="5" fill="#6EE7B7"/>
+                                            <ellipse cx="305" cy="58" rx="14" ry="5" fill="#A7F3D0"/>
+                                            
+                                            <ellipse cx="330" cy="65" rx="16" ry="6" fill="#34D399"/>
+                                            <ellipse cx="330" cy="58" rx="16" ry="6" fill="#6EE7B7"/>
+                                            <ellipse cx="330" cy="51" rx="16" ry="6" fill="#A7F3D0"/>
+                                            <ellipse cx="330" cy="44" rx="16" ry="6" fill="#D1FAE5"/>
+                                            
+                                            <ellipse cx="355" cy="68" rx="14" ry="5" fill="#34D399"/>
+                                            <ellipse cx="355" cy="63" rx="14" ry="5" fill="#6EE7B7"/>
+                                            <ellipse cx="355" cy="58" rx="14" ry="5" fill="#A7F3D0"/>
+                                        </g>
+                                    </g>
+                                    
+                                    <!-- Bottom label -->
+                                    <text x="200" y="415" text-anchor="middle" fill="#64748B" font-size="13" font-weight="600">Value outweighs cost at enterprise scale</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 4: Categories - 3D Grid -->
+                <section class="slide" data-slide="4">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">🧩 Categories</span>
+                            <h1 class="slide-title">Categories of <span class="gradient">Workflow Tools</span></h1>
+                            
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Criteria</th>
+                                        <th>ERP</th>
+                                        <th>PM Tools</th>
+                                        <th>Low-Code</th>
+                                        <th>No-Code DB</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Flexibility</td>
+                                        <td class="no">Limited</td>
+                                        <td class="partial">Medium</td>
+                                        <td class="yes">High</td>
+                                        <td class="yes">High</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Build Speed</td>
+                                        <td class="no">Slow</td>
+                                        <td class="yes">Fast</td>
+                                        <td class="partial">Medium</td>
+                                        <td class="yes">Fast</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Relations</td>
+                                        <td class="yes">✓</td>
+                                        <td class="no">✗</td>
+                                        <td class="yes">✓</td>
+                                        <td class="yes">✓</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Needs Dev</td>
+                                        <td class="no">Yes</td>
+                                        <td class="yes">No</td>
+                                        <td class="partial">Partial</td>
+                                        <td class="yes">No</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <defs>
+                                        <filter id="box3d" x="-30%" y="-30%" width="160%" height="180%">
+                                            <feDropShadow dx="0" dy="12" stdDeviation="18" flood-opacity="0.12"/>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- 3D Isometric boxes -->
+                                    
+                                    <!-- ERP Box -->
+                                    <g class="anim-float-3d" filter="url(#box3d)">
+                                        <path d="M30 40 L30 140 L110 180 L190 140 L190 40 L110 80 L30 40" fill="#FEF3C7" stroke="#FCD34D" stroke-width="2"/>
+                                        <path d="M30 40 L110 0 L190 40 L110 80 L30 40" fill="#FDE68A" stroke="#FCD34D" stroke-width="2"/>
+                                        <path d="M110 80 L110 180 L190 140 L190 40 L110 80" fill="#FBBF24" stroke="#FCD34D" stroke-width="2" opacity="0.7"/>
+                                        <text x="110" y="70" text-anchor="middle" font-size="28">🏢</text>
+                                        <text x="110" y="120" text-anchor="middle" fill="#92400E" font-family="Sora" font-size="12" font-weight="700">ERP</text>
+                                        <text x="110" y="138" text-anchor="middle" fill="#A16207" font-size="9">Rigid</text>
+                                    </g>
+                                    
+                                    <!-- PM Tools Box -->
+                                    <g class="anim-float-3d" style="animation-delay: 0.2s" filter="url(#box3d)">
+                                        <path d="M210 40 L210 140 L290 180 L370 140 L370 40 L290 80 L210 40" fill="#FFE4E6" stroke="#FDA4AF" stroke-width="2"/>
+                                        <path d="M210 40 L290 0 L370 40 L290 80 L210 40" fill="#FECDD3" stroke="#FDA4AF" stroke-width="2"/>
+                                        <path d="M290 80 L290 180 L370 140 L370 40 L290 80" fill="#FB7185" stroke="#FDA4AF" stroke-width="2" opacity="0.5"/>
+                                        <text x="290" y="70" text-anchor="middle" font-size="28">📋</text>
+                                        <text x="290" y="120" text-anchor="middle" fill="#9F1239" font-family="Sora" font-size="12" font-weight="700">PM Tools</text>
+                                        <text x="290" y="138" text-anchor="middle" fill="#BE123C" font-size="9">No Relations</text>
+                                    </g>
+                                    
+                                    <!-- Low-Code Box -->
+                                    <g class="anim-float-3d" style="animation-delay: 0.4s" filter="url(#box3d)">
+                                        <path d="M30 220 L30 320 L110 360 L190 320 L190 220 L110 260 L30 220" fill="#EDE9FE" stroke="#C4B5FD" stroke-width="2"/>
+                                        <path d="M30 220 L110 180 L190 220 L110 260 L30 220" fill="#DDD6FE" stroke="#C4B5FD" stroke-width="2"/>
+                                        <path d="M110 260 L110 360 L190 320 L190 220 L110 260" fill="#8B5CF6" stroke="#C4B5FD" stroke-width="2" opacity="0.4"/>
+                                        <text x="110" y="250" text-anchor="middle" font-size="28">⚙️</text>
+                                        <text x="110" y="300" text-anchor="middle" fill="#5B21B6" font-family="Sora" font-size="12" font-weight="700">Low-Code</text>
+                                        <text x="110" y="318" text-anchor="middle" fill="#7C3AED" font-size="9">Needs IT</text>
+                                    </g>
+                                    
+                                    <!-- No-Code DB Box - WINNER -->
+                                    <g class="anim-float-3d anim-glow" style="animation-delay: 0.6s" filter="url(#box3d)">
+                                        <path d="M210 220 L210 320 L290 360 L370 320 L370 220 L290 260 L210 220" fill="#E0F2FE" stroke="url(#gradMain)" stroke-width="3"/>
+                                        <path d="M210 220 L290 180 L370 220 L290 260 L210 220" fill="#BAE6FD" stroke="url(#gradMain)" stroke-width="3"/>
+                                        <path d="M290 260 L290 360 L370 320 L370 220 L290 260" fill="#0EA5E9" stroke="url(#gradMain)" stroke-width="3" opacity="0.4"/>
+                                        <text x="290" y="250" text-anchor="middle" font-size="28">🗄️</text>
+                                        <text x="290" y="298" text-anchor="middle" fill="#0284C7" font-family="Sora" font-size="12" font-weight="700">No-Code DB</text>
+                                        <text x="290" y="316" text-anchor="middle" fill="#0EA5E9" font-size="10" font-weight="700">Airtable ⭐</text>
+                                        
+                                        <!-- Best fit badge -->
+                                        <rect x="250" y="330" width="80" height="24" rx="12" fill="url(#gradMain)"/>
+                                        <text x="290" y="347" text-anchor="middle" fill="white" font-size="10" font-weight="700">Best Fit ✓</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 5: Why Airtable -->
+                <section class="slide" data-slide="5">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">⭐ The Solution</span>
+                            <h1 class="slide-title">Why <span class="gradient">Airtable</span> Fits Media</h1>
+                            <p class="slide-desc">Proven by Netflix, Amazon Studios, Disney, Hulu, Daily Mail, Sky, HBO, BBC Studios, National Geographic</p>
+                            
+                            <ul class="features">
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Relational data model:</strong> Show → Season → Episode → Assets</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Metadata-ready:</strong> Reports, AI models, Data Lake ingestion</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Strong API:</strong> MAM, CMS, scheduling, publishing</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+                                    <span class="feature-text"><strong>Custom interfaces:</strong> Editorial, Ops, Localization, Product</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 420">
+                                    <!-- 3D Hierarchical Structure -->
+                                    
+                                    <!-- Top: Show -->
+                                    <g class="anim-float-3d" filter="url(#shadow3d)">
+                                        <rect x="130" y="15" width="140" height="55" rx="16" fill="url(#gradMain)"/>
+                                        <rect x="130" y="15" width="140" height="20" rx="16" fill="rgba(255,255,255,0.2)"/>
+                                        <text x="200" y="50" text-anchor="middle" fill="white" font-family="Sora" font-size="14" font-weight="700">📺 Show</text>
+                                    </g>
+                                    
+                                    <line x1="200" y1="70" x2="200" y2="100" stroke="#CBD5E1" stroke-width="3"/>
+                                    
+                                    <!-- Season -->
+                                    <g class="anim-float-3d" style="animation-delay: 0.2s" filter="url(#shadow3d)">
+                                        <rect x="140" y="100" width="120" height="45" rx="14" fill="white" stroke="#06B6D4" stroke-width="3"/>
+                                        <rect x="140" y="100" width="120" height="15" rx="14" fill="rgba(6, 182, 212, 0.1)"/>
+                                        <text x="200" y="130" text-anchor="middle" fill="#0891B2" font-family="Sora" font-size="12" font-weight="700">📁 Season</text>
+                                    </g>
+                                    
+                                    <!-- Branching lines -->
+                                    <path d="M200 145 Q200 165 80 185" stroke="#CBD5E1" stroke-width="2" fill="none"/>
+                                    <path d="M200 145 L200 185" stroke="#CBD5E1" stroke-width="2"/>
+                                    <path d="M200 145 Q200 165 320 185" stroke="#CBD5E1" stroke-width="2" fill="none"/>
+                                    
+                                    <!-- Episodes -->
+                                    <g class="anim-float-3d" style="animation-delay: 0.3s" filter="url(#shadow3d)">
+                                        <rect x="30" y="185" width="100" height="40" rx="12" fill="white" stroke="#10B981" stroke-width="2"/>
+                                        <text x="80" y="210" text-anchor="middle" fill="#059669" font-size="11" font-weight="700">🎬 Episode 1</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.4s" filter="url(#shadow3d)">
+                                        <rect x="150" y="185" width="100" height="40" rx="12" fill="white" stroke="#10B981" stroke-width="2"/>
+                                        <text x="200" y="210" text-anchor="middle" fill="#059669" font-size="11" font-weight="700">🎬 Episode 2</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.5s" filter="url(#shadow3d)">
+                                        <rect x="270" y="185" width="100" height="40" rx="12" fill="white" stroke="#10B981" stroke-width="2"/>
+                                        <text x="320" y="210" text-anchor="middle" fill="#059669" font-size="11" font-weight="700">🎬 Episode 3</text>
+                                    </g>
+                                    
+                                    <!-- Asset lines -->
+                                    <line x1="80" y1="225" x2="80" y2="255" stroke="#CBD5E1" stroke-width="2"/>
+                                    <line x1="200" y1="225" x2="200" y2="255" stroke="#CBD5E1" stroke-width="2"/>
+                                    <line x1="320" y1="225" x2="320" y2="255" stroke="#CBD5E1" stroke-width="2"/>
+                                    
+                                    <!-- 3D Assets -->
+                                    <g class="anim-float-3d" style="animation-delay: 0.7s">
+                                        <ellipse cx="60" cy="282" rx="20" ry="8" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="60" cy="275" r="20" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="60" y="280" text-anchor="middle" font-size="14">🎥</text>
+                                        
+                                        <ellipse cx="100" cy="282" rx="18" ry="7" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="100" cy="275" r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="100" y="280" text-anchor="middle" font-size="12">🖼️</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.8s">
+                                        <ellipse cx="180" cy="282" rx="18" ry="7" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="180" cy="275" r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="180" y="280" text-anchor="middle" font-size="12">📄</text>
+                                        
+                                        <ellipse cx="220" cy="282" rx="18" ry="7" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="220" cy="275" r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="220" y="280" text-anchor="middle" font-size="12">🎵</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.9s">
+                                        <ellipse cx="300" cy="282" rx="18" ry="7" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="300" cy="275" r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="300" y="280" text-anchor="middle" font-size="12">📝</text>
+                                        
+                                        <ellipse cx="340" cy="282" rx="18" ry="7" fill="rgba(245, 158, 11, 0.3)"/>
+                                        <circle cx="340" cy="275" r="18" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+                                        <text x="340" y="280" text-anchor="middle" font-size="12">🎨</text>
+                                    </g>
+                                    
+                                    <!-- Data Lake destination -->
+                                    <g filter="url(#shadow3d)" class="anim-bounce">
+                                        <rect x="90" y="330" width="220" height="50" rx="16" fill="white" stroke="url(#gradMain)" stroke-width="2" stroke-dasharray="8 4"/>
+                                        <text x="200" y="362" text-anchor="middle" fill="#0284C7" font-family="Sora" font-size="13" font-weight="700">→ AJ Data Lake ←</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Remaining slides continue with similar 3D enhancements... -->
+                <!-- For brevity, I'll include the key remaining slides -->
+
+                <!-- Slide 6-11: Similar structure with 3D effects -->
+                <section class="slide" data-slide="6">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">⚖️ Comparison</span>
+                            <h1 class="slide-title"><span class="gradient">Airtable</span> vs Other Tools</h1>
+                            
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Capability</th>
+                                        <th style="color: #0EA5E9">Airtable</th>
+                                        <th>Asana</th>
+                                        <th>AppSheet</th>
+                                        <th>Power Apps</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Relational DB</td>
+                                        <td class="yes">✓</td>
+                                        <td class="no">✗</td>
+                                        <td class="partial">Limited</td>
+                                        <td class="yes">✓</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Automation</td>
+                                        <td class="yes">Advanced</td>
+                                        <td class="partial">Rules</td>
+                                        <td class="partial">Bots</td>
+                                        <td class="yes">Automate</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Build Speed</td>
+                                        <td class="yes">Fast</td>
+                                        <td class="yes">Fast</td>
+                                        <td class="partial">Medium</td>
+                                        <td class="no">Slow</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Needs Dev</td>
+                                        <td class="yes">No</td>
+                                        <td class="yes">No</td>
+                                        <td class="partial">Partial</td>
+                                        <td class="no">Yes</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="info-box success">
+                                <div class="info-box-header">✓ Key Advantage</div>
+                                <p>Airtable combines <strong>relational database power</strong> with <strong>no-code simplicity</strong> — a unique position in the market.</p>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <!-- 3D Radar Chart -->
+                                    <g transform="translate(200, 200)">
+                                        <!-- 3D base shadow -->
+                                        <ellipse cx="0" cy="30" rx="160" ry="40" fill="rgba(14, 165, 233, 0.1)"/>
+                                        
+                                        <!-- Background circles with 3D perspective -->
+                                        <ellipse rx="145" ry="145" fill="none" stroke="#E2E8F0" stroke-width="1.5" opacity="0.5"/>
+                                        <ellipse rx="116" ry="116" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+                                        <ellipse rx="87" ry="87" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+                                        <ellipse rx="58" ry="58" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+                                        
+                                        <!-- Axis lines -->
+                                        <line x1="0" y1="-145" x2="0" y2="145" stroke="#E2E8F0" stroke-width="1"/>
+                                        <line x1="-126" y1="-72" x2="126" y2="72" stroke="#E2E8F0" stroke-width="1"/>
+                                        <line x1="-126" y1="72" x2="126" y2="-72" stroke="#E2E8F0" stroke-width="1"/>
+                                        
+                                        <!-- Labels -->
+                                        <text x="0" y="-160" text-anchor="middle" fill="#64748B" font-size="11" font-weight="600">Flexibility</text>
+                                        <text x="150" y="-70" text-anchor="start" fill="#64748B" font-size="11" font-weight="600">Speed</text>
+                                        <text x="150" y="85" text-anchor="start" fill="#64748B" font-size="11" font-weight="600">Relations</text>
+                                        <text x="0" y="175" text-anchor="middle" fill="#64748B" font-size="11" font-weight="600">Automation</text>
+                                        <text x="-150" y="85" text-anchor="end" fill="#64748B" font-size="11" font-weight="600">API</text>
+                                        <text x="-150" y="-70" text-anchor="end" fill="#64748B" font-size="11" font-weight="600">Interfaces</text>
+                                        
+                                        <!-- Airtable polygon with 3D glow -->
+                                        <polygon 
+                                            points="0,-135 117,-68 117,68 0,135 -117,68 -117,-68" 
+                                            fill="rgba(14, 165, 233, 0.2)" 
+                                            stroke="url(#gradMain)" 
+                                            stroke-width="4"
+                                            filter="url(#glow1)"
+                                            class="anim-pulse"/>
+                                        
+                                        <!-- PM Tools polygon -->
+                                        <polygon 
+                                            points="0,-45 39,-22 39,22 0,75 -39,22 -39,-22" 
+                                            fill="rgba(251, 113, 133, 0.1)" 
+                                            stroke="#FB7185" 
+                                            stroke-width="2"
+                                            stroke-dasharray="5 3"/>
+                                        
+                                        <!-- 3D Data points -->
+                                        <g filter="url(#shadow3d)">
+                                            <circle cx="0" cy="-135" r="8" fill="#0EA5E9"/>
+                                            <circle cx="117" cy="-68" r="8" fill="#0EA5E9"/>
+                                            <circle cx="117" cy="68" r="8" fill="#0EA5E9"/>
+                                            <circle cx="0" cy="135" r="8" fill="#0EA5E9"/>
+                                            <circle cx="-117" cy="68" r="8" fill="#0EA5E9"/>
+                                            <circle cx="-117" cy="-68" r="8" fill="#0EA5E9"/>
+                                        </g>
+                                    </g>
+                                    
+                                    <!-- Legend -->
+                                    <g transform="translate(25, 375)">
+                                        <rect width="20" height="20" rx="6" fill="url(#gradMain)"/>
+                                        <text x="28" y="15" fill="#0F172A" font-size="12" font-weight="700">Airtable</text>
+                                        
+                                        <rect x="120" width="20" height="20" rx="6" fill="#FB7185" opacity="0.5"/>
+                                        <text x="148" y="15" fill="#64748B" font-size="12">PM Tools</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slides 7-11 abbreviated for length -->
+                <section class="slide" data-slide="7">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">🏗 Self-Hosted</span>
+                            <h1 class="slide-title"><span class="gradient">Teable</span> vs Airtable</h1>
+                            <p class="slide-desc">Why teams consider self-hosted: Full on-prem data, infrastructure control.</p>
+                            
+                            <div class="info-box warning">
+                                <div class="info-box-header">⚠️ Teable Enterprise Limitations</div>
+                                <p>Small company • No SLA • Full internal ownership required • Limited UX • Smaller ecosystem</p>
+                            </div>
+                            
+                            <div class="info-box success">
+                                <div class="info-box-header">✓ Recommended Hybrid Model</div>
+                                <p><strong>Sensitive data →</strong> Internal systems<br><strong>Workflow & metadata →</strong> Airtable<br><strong>Connected via</strong> API</p>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 380">
+                                    <defs>
+                                        <linearGradient id="gradMain7" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0EA5E9"/>
+                                            <stop offset="50%" stop-color="#06B6D4"/>
+                                            <stop offset="100%" stop-color="#14B8A6"/>
+                                        </linearGradient>
+                                        <filter id="shadow3d7" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+                                        </filter>
+                                    </defs>
+                                    <!-- VS visual comparison -->
+                                    <g filter="url(#shadow3d7)" class="anim-float-3d">
+                                        <rect x="20" y="20" width="160" height="130" rx="20" fill="white" stroke="#C4B5FD" stroke-width="2"/>
+                                        <text x="100" y="55" text-anchor="middle" fill="#7C3AED" font-family="Sora" font-size="13" font-weight="700">Self-Hosted</text>
+                                        <rect x="45" y="70" width="110" height="55" rx="12" fill="#F3E8FF"/>
+                                        <text x="100" y="105" text-anchor="middle" fill="#7C3AED" font-size="10">Higher Risk</text>
+                                        <text x="100" y="145" text-anchor="middle" fill="#DC2626" font-size="10" font-weight="600">⚠️ Limited Support</text>
+                                    </g>
+                                    
+                                    <g filter="url(#shadow3d7)" class="anim-float-3d" style="animation-delay: 0.2s">
+                                        <rect x="220" y="20" width="160" height="130" rx="20" fill="white" stroke="url(#gradMain7)" stroke-width="3"/>
+                                        <rect x="220" y="20" width="160" height="130" rx="20" fill="rgba(14, 165, 233, 0.05)"/>
+                                        <text x="300" y="55" text-anchor="middle" fill="#0284C7" font-family="Sora" font-size="13" font-weight="700">Airtable Cloud</text>
+                                        <ellipse cx="300" cy="95" rx="35" ry="22" fill="#E0F2FE" stroke="#7DD3FC" stroke-width="2"/>
+                                        <ellipse cx="275" cy="90" rx="18" ry="14" fill="#E0F2FE"/>
+                                        <ellipse cx="325" cy="88" rx="16" ry="12" fill="#E0F2FE"/>
+                                        <text x="300" y="145" text-anchor="middle" fill="#059669" font-size="10" font-weight="600">✓ Enterprise Proven</text>
+                                    </g>
+                                    
+                                    <circle cx="200" cy="85" r="28" fill="white" stroke="#E2E8F0" stroke-width="3" filter="url(#shadow3d7)"/>
+                                    <text x="200" y="92" text-anchor="middle" fill="#64748B" font-family="Sora" font-size="13" font-weight="800">VS</text>
+                                    
+                                    <!-- Hybrid Model -->
+                                    <g filter="url(#shadow3d7)">
+                                        <rect x="40" y="185" width="320" height="130" rx="24" fill="white" stroke="#10B981" stroke-width="3"/>
+                                        <rect x="40" y="185" width="320" height="130" rx="24" fill="rgba(16, 185, 129, 0.05)"/>
+                                        <text x="200" y="220" text-anchor="middle" fill="#059669" font-family="Sora" font-size="14" font-weight="700">💡 Recommended Hybrid</text>
+                                        
+                                        <rect x="65" y="240" width="110" height="50" rx="14" fill="#F3E8FF" stroke="#C4B5FD" stroke-width="2"/>
+                                        <text x="120" y="272" text-anchor="middle" fill="#7C3AED" font-family="Sora" font-size="12" font-weight="600">Internal</text>
+                                        
+                                        <rect x="225" y="240" width="110" height="50" rx="14" fill="#E0F2FE" stroke="#7DD3FC" stroke-width="2"/>
+                                        <text x="280" y="272" text-anchor="middle" fill="#0284C7" font-family="Sora" font-size="12" font-weight="600">Airtable</text>
+                                        
+                                        <line x1="175" y1="265" x2="225" y2="265" stroke="#10B981" stroke-width="4" class="anim-dash"/>
+                                        <rect x="182" y="254" width="36" height="22" rx="6" fill="#D1FAE5"/>
+                                        <text x="200" y="270" text-anchor="middle" fill="#059669" font-size="10" font-weight="700">API</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="slide" data-slide="8">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">🔗 Integration</span>
+                            <h1 class="slide-title">Should Airtable <span class="gradient">Replace All</span> Systems?</h1>
+                            <p class="slide-desc" style="color: #DC2626; font-weight: 600;">Short answer: No — and it shouldn't.</p>
+                            <p class="slide-desc">Specialized systems are still needed: Broadcast, MAM, Scheduling, Finance</p>
+                            
+                            <div class="info-box success">
+                                <div class="info-box-header">✓ Recommended Operating Model</div>
+                                <p><strong>Airtable hosts:</strong> Content IDs, Core metadata, Workflow status<br>
+                                <strong>Other tools handle:</strong> Task execution, Media handling<br>
+                                <strong>Result:</strong> Single source of truth + Reliable reporting</p>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <defs>
+                                        <linearGradient id="gradMain8" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0EA5E9"/>
+                                            <stop offset="50%" stop-color="#06B6D4"/>
+                                            <stop offset="100%" stop-color="#14B8A6"/>
+                                        </linearGradient>
+                                        <filter id="shadow3d8" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+                                        </filter>
+                                        <filter id="glow8" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                                            <feMerge>
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <!-- Hub and spoke 3D -->
+                                    <g class="anim-dash" stroke-width="3" fill="none" opacity="0.8">
+                                        <path d="M200 140 L120 70" stroke="#F59E0B" filter="url(#glow8)"/>
+                                        <path d="M200 140 L280 70" stroke="#8B5CF6" filter="url(#glow8)"/>
+                                        <path d="M200 260 L120 330" stroke="#FB7185" filter="url(#glow8)"/>
+                                        <path d="M200 260 L280 330" stroke="#10B981" filter="url(#glow8)"/>
+                                        <path d="M140 200 L60 200" stroke="#64748B"/>
+                                        <path d="M260 200 L340 200" stroke="#64748B"/>
+                                    </g>
+                                    
+                                    <!-- Center hub 3D -->
+                                    <g class="anim-pulse" filter="url(#shadow3d8)">
+                                        <ellipse cx="200" cy="210" rx="55" ry="18" fill="rgba(14, 165, 233, 0.3)"/>
+                                        <circle cx="200" cy="200" r="55" fill="url(#gradMain8)"/>
+                                        <ellipse cx="200" cy="185" rx="40" ry="12" fill="rgba(255,255,255,0.2)"/>
+                                        <text x="200" y="195" text-anchor="middle" fill="white" font-family="Sora" font-size="13" font-weight="700">Airtable</text>
+                                        <text x="200" y="212" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="9">Source of Truth</text>
+                                    </g>
+                                    
+                                    <!-- Surrounding systems 3D -->
+                                    <g class="anim-float-3d" filter="url(#shadow3d8)">
+                                        <ellipse cx="100" cy="65" rx="35" ry="12" fill="rgba(245, 158, 11, 0.2)"/>
+                                        <circle cx="100" cy="50" r="38" fill="white" stroke="#F59E0B" stroke-width="3"/>
+                                        <text x="100" y="48" text-anchor="middle" font-size="18">📦</text>
+                                        <text x="100" y="68" text-anchor="middle" fill="#D97706" font-size="10" font-weight="700">MAM</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.2s" filter="url(#shadow3d8)">
+                                        <ellipse cx="300" cy="65" rx="35" ry="12" fill="rgba(139, 92, 246, 0.2)"/>
+                                        <circle cx="300" cy="50" r="38" fill="white" stroke="#8B5CF6" stroke-width="3"/>
+                                        <text x="300" y="48" text-anchor="middle" font-size="18">📡</text>
+                                        <text x="300" y="68" text-anchor="middle" fill="#7C3AED" font-size="10" font-weight="700">Broadcast</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.4s" filter="url(#shadow3d8)">
+                                        <ellipse cx="100" cy="355" rx="35" ry="12" fill="rgba(251, 113, 133, 0.2)"/>
+                                        <circle cx="100" cy="340" r="38" fill="white" stroke="#FB7185" stroke-width="3"/>
+                                        <text x="100" y="338" text-anchor="middle" font-size="18">📋</text>
+                                        <text x="100" y="358" text-anchor="middle" fill="#E11D48" font-size="10" font-weight="700">Asana</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.6s" filter="url(#shadow3d8)">
+                                        <ellipse cx="300" cy="355" rx="35" ry="12" fill="rgba(16, 185, 129, 0.2)"/>
+                                        <circle cx="300" cy="340" r="38" fill="white" stroke="#10B981" stroke-width="3"/>
+                                        <text x="300" y="338" text-anchor="middle" font-size="18">🚀</text>
+                                        <text x="300" y="358" text-anchor="middle" fill="#059669" font-size="10" font-weight="700">Publishing</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.8s" filter="url(#shadow3d8)">
+                                        <circle cx="40" cy="200" r="32" fill="white" stroke="#94A3B8" stroke-width="2"/>
+                                        <text x="40" y="198" text-anchor="middle" font-size="15">💰</text>
+                                        <text x="40" y="216" text-anchor="middle" fill="#64748B" font-size="9" font-weight="600">Finance</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 1s" filter="url(#shadow3d8)">
+                                        <circle cx="360" cy="200" r="32" fill="white" stroke="#94A3B8" stroke-width="2"/>
+                                        <text x="360" y="198" text-anchor="middle" font-size="15">📅</text>
+                                        <text x="360" y="216" text-anchor="middle" fill="#64748B" font-size="9" font-weight="600">Schedule</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="slide" data-slide="9">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">⚠️ Risks</span>
+                            <h1 class="slide-title">Risks of <span class="gradient">Ignoring Airtable</span></h1>
+                            
+                            <div class="info-box warning">
+                                <div class="info-box-header">⚠️ Operational Risks</div>
+                                <ul class="features" style="margin: 0;">
+                                    <li class="feature-item" style="border-color: rgba(239, 68, 68, 0.2);">
+                                        <span class="feature-icon" style="background: linear-gradient(135deg, #EF4444, #F87171);"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                                        <span class="feature-text">Parallel systems with <strong>mismatched data</strong></span>
+                                    </li>
+                                    <li class="feature-item" style="border-color: rgba(239, 68, 68, 0.2);">
+                                        <span class="feature-icon" style="background: linear-gradient(135deg, #EF4444, #F87171);"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                                        <span class="feature-text"><strong>Manual reconciliation</strong> constantly required</span>
+                                    </li>
+                                    <li class="feature-item" style="border-color: rgba(239, 68, 68, 0.2);">
+                                        <span class="feature-icon" style="background: linear-gradient(135deg, #EF4444, #F87171);"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
+                                        <span class="feature-text"><strong>Inaccurate reporting</strong> for leadership</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="stats-row">
+                                <div class="stat-box" style="border-color: rgba(239, 68, 68, 0.2);">
+                                    <div class="stat-value" style="background: linear-gradient(135deg, #EF4444, #F87171); -webkit-background-clip: text;">2x</div>
+                                    <div class="stat-label">Reconciliation Time</div>
+                                </div>
+                                <div class="stat-box" style="border-color: rgba(239, 68, 68, 0.2);">
+                                    <div class="stat-value" style="background: linear-gradient(135deg, #EF4444, #F87171); -webkit-background-clip: text;">↓</div>
+                                    <div class="stat-label">Report Quality</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <defs>
+                                        <filter id="shadow3d9" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+                                        </filter>
+                                    </defs>
+                                    <!-- Data Chaos visual -->
+                                    <g class="anim-float-3d" filter="url(#shadow3d9)">
+                                        <rect x="25" y="30" width="100" height="50" rx="12" fill="white" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 3"/>
+                                        <text x="75" y="62" text-anchor="middle" fill="#DC2626" font-size="10" font-weight="600">System 1</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.1s" filter="url(#shadow3d9)">
+                                        <rect x="150" y="20" width="100" height="50" rx="12" fill="white" stroke="#F59E0B" stroke-width="2" stroke-dasharray="6 3"/>
+                                        <text x="200" y="52" text-anchor="middle" fill="#D97706" font-size="10" font-weight="600">System 2</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.2s" filter="url(#shadow3d9)">
+                                        <rect x="275" y="30" width="100" height="50" rx="12" fill="white" stroke="#8B5CF6" stroke-width="2" stroke-dasharray="6 3"/>
+                                        <text x="325" y="62" text-anchor="middle" fill="#7C3AED" font-size="10" font-weight="600">System 3</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.3s">
+                                        <rect x="50" y="100" width="85" height="40" rx="10" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+                                        <text x="92" y="126" text-anchor="middle" fill="#64748B" font-size="10" font-weight="500">📊 Excel</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.4s">
+                                        <rect x="265" y="100" width="85" height="40" rx="10" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5"/>
+                                        <text x="307" y="126" text-anchor="middle" fill="#64748B" font-size="10" font-weight="500">📧 Email</text>
+                                    </g>
+                                    
+                                    <!-- Question marks -->
+                                    <text x="170" y="100" fill="#EF4444" font-size="24" font-weight="800">?</text>
+                                    <text x="215" y="115" fill="#EF4444" font-size="20" font-weight="800">?</text>
+                                    <text x="195" y="140" fill="#EF4444" font-size="18" font-weight="800">?</text>
+                                    
+                                    <!-- Messy lines -->
+                                    <path d="M125 55 Q160 70 150 45" stroke="#EF4444" stroke-width="2" fill="none" opacity="0.5"/>
+                                    <path d="M250 45 Q270 60 275 55" stroke="#EF4444" stroke-width="2" fill="none" opacity="0.5"/>
+                                    <path d="M92 80 Q110 100 92 100" stroke="#EF4444" stroke-width="2" fill="none" opacity="0.5"/>
+                                    <path d="M135 120 Q200 130 265 120" stroke="#EF4444" stroke-width="2" fill="none" opacity="0.5"/>
+                                    
+                                    <!-- Confused person -->
+                                    <g filter="url(#shadow3d9)" class="anim-bounce">
+                                        <ellipse cx="200" cy="255" rx="50" ry="15" fill="rgba(239, 68, 68, 0.2)"/>
+                                        <circle cx="200" cy="230" r="55" fill="white" stroke="#EF4444" stroke-width="4"/>
+                                        <text x="200" y="242" text-anchor="middle" font-size="50">😵</text>
+                                    </g>
+                                    
+                                    <!-- Lines to confused person -->
+                                    <line x1="92" y1="140" x2="155" y2="195" stroke="#EF4444" stroke-width="2"/>
+                                    <line x1="200" y1="145" x2="200" y2="175" stroke="#EF4444" stroke-width="2"/>
+                                    <line x1="307" y1="140" x2="245" y2="195" stroke="#EF4444" stroke-width="2"/>
+                                    
+                                    <!-- Result -->
+                                    <g filter="url(#shadow3d9)">
+                                        <rect x="115" y="320" width="170" height="50" rx="16" fill="#FEE2E2" stroke="#EF4444" stroke-width="3"/>
+                                        <text x="200" y="352" text-anchor="middle" fill="#DC2626" font-family="Sora" font-size="16" font-weight="800">Data Chaos!</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 10: Business Impact -->
+                <section class="slide" data-slide="10">
+                    <div class="slide-inner centered">
+                        <div class="text-content" style="max-width: 1100px; margin: 0 auto;">
+                            <span class="slide-badge">📈 Proven Impact</span>
+                            <h1 class="slide-title">Real <span class="gradient">Business Results</span></h1>
+                            
+                            <div class="impact-grid">
+                                <div class="impact-item">
+                                    <div class="impact-emoji">🎬</div>
+                                    <div class="impact-value">Netflix</div>
+                                    <div class="impact-label">5,400+ users • 31+ workflows</div>
+                                </div>
+                                <div class="impact-item">
+                                    <div class="impact-emoji">📺</div>
+                                    <div class="impact-value">$2.6M</div>
+                                    <div class="impact-label">Hulu annual savings</div>
+                                </div>
+                                <div class="impact-item">
+                                    <div class="impact-emoji">🏰</div>
+                                    <div class="impact-value">90%</div>
+                                    <div class="impact-label">Disney manual entry eliminated</div>
+                                </div>
+                                <div class="impact-item">
+                                    <div class="impact-emoji">📦</div>
+                                    <div class="impact-value">75%</div>
+                                    <div class="impact-label">Amazon less manual work</div>
+                                </div>
+                                <div class="impact-item">
+                                    <div class="impact-emoji">📰</div>
+                                    <div class="impact-value">Daily Mail</div>
+                                    <div class="impact-label">Mandatory entry point</div>
+                                </div>
+                                <div class="impact-item">
+                                    <div class="impact-emoji">💰</div>
+                                    <div class="impact-value">$70M</div>
+                                    <div class="impact-label">Reclaimed production costs</div>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-row" style="max-width: 900px; margin: 40px auto 0;">
+                                <div class="stat-box">
+                                    <div class="stat-value">75%</div>
+                                    <div class="stat-label">Production Time Reduced</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">80%</div>
+                                    <div class="stat-label">Manual Entry Reduced</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value">3x</div>
+                                    <div class="stat-label">Productivity Increase</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 11: Recommendations -->
+                <section class="slide" data-slide="11">
+                    <div class="slide-inner">
+                        <div class="text-content">
+                            <span class="slide-badge">🧭 Recommendations</span>
+                            <h1 class="slide-title">What This Means for <span class="gradient">AJMN</span></h1>
+                            
+                            <div class="info-box success">
+                                <div class="info-box-header">✓ If you're already on Airtable</div>
+                                <p>Invest in integrations • Standardize data models • Feed Data Lake • Seek expert help for complex workflows</p>
+                            </div>
+                            
+                            <div class="info-box info" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05)); border-color: rgba(245, 158, 11, 0.25);">
+                                <div class="info-box-header" style="color: #D97706;">⚡ If you're using other tools</div>
+                                <p>No need to abandon them • But there must be a meeting point with Airtable • A single structured record system must exist</p>
+                            </div>
+                            
+                            <div class="info-box info">
+                                <div class="info-box-header">💡 Remember</div>
+                                <p>Airtable is not just tracking. It's a <strong>workflow engine</strong>, <strong>lightweight database</strong>, and <strong>integration hub</strong>.</p>
+                            </div>
+                        </div>
+                        <div class="visual-block">
+                            <div class="visual-wrapper">
+                                <svg viewBox="0 0 400 400">
+                                    <!-- 3D Roadmap -->
+                                    <defs>
+                                        <linearGradient id="pathGrad3d11" x1="0%" y1="100%" x2="100%" y2="0%">
+                                            <stop offset="0%" stop-color="#94A3B8"/>
+                                            <stop offset="40%" stop-color="#0EA5E9"/>
+                                            <stop offset="100%" stop-color="#10B981"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradMain11" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#0EA5E9"/>
+                                            <stop offset="50%" stop-color="#06B6D4"/>
+                                            <stop offset="100%" stop-color="#14B8A6"/>
+                                        </linearGradient>
+                                        <filter id="shadow3d11" x="-30%" y="-30%" width="160%" height="160%">
+                                            <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15"/>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- 3D Path -->
+                                    <path d="M45 330 Q100 280 140 245 Q180 210 220 170 Q260 130 300 95 Q340 55 370 30" 
+                                          stroke="url(#pathGrad3d11)" 
+                                          stroke-width="10" 
+                                          fill="none" 
+                                          stroke-linecap="round"
+                                          filter="url(#shadow3d11)"/>
+                                    
+                                    <!-- Milestones -->
+                                    <g class="anim-float-3d" filter="url(#shadow3d11)">
+                                        <ellipse cx="45" cy="340" rx="26" ry="10" fill="rgba(148, 163, 184, 0.3)"/>
+                                        <circle cx="45" cy="325" r="28" fill="white" stroke="#94A3B8" stroke-width="3"/>
+                                        <text x="45" y="332" text-anchor="middle" font-size="20">📍</text>
+                                        <text x="45" y="372" text-anchor="middle" fill="#64748B" font-size="11" font-weight="600">Now</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.3s" filter="url(#shadow3d11)">
+                                        <ellipse cx="150" cy="250" rx="26" ry="10" fill="rgba(14, 165, 233, 0.3)"/>
+                                        <circle cx="150" cy="235" r="28" fill="white" stroke="#0EA5E9" stroke-width="3"/>
+                                        <text x="150" y="242" text-anchor="middle" font-size="20">🔗</text>
+                                        <text x="150" y="282" text-anchor="middle" fill="#0284C7" font-size="11" font-weight="700">Integration</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d" style="animation-delay: 0.6s" filter="url(#shadow3d11)">
+                                        <ellipse cx="230" cy="175" rx="26" ry="10" fill="rgba(6, 182, 212, 0.3)"/>
+                                        <circle cx="230" cy="160" r="28" fill="white" stroke="#06B6D4" stroke-width="3"/>
+                                        <text x="230" y="167" text-anchor="middle" font-size="20">📊</text>
+                                        <text x="230" y="205" text-anchor="middle" fill="#0891B2" font-size="11" font-weight="700">Data Lake</text>
+                                    </g>
+                                    
+                                    <g class="anim-float-3d anim-glow" style="animation-delay: 0.9s" filter="url(#shadow3d11)">
+                                        <ellipse cx="360" cy="55" rx="32" ry="12" fill="rgba(16, 185, 129, 0.3)"/>
+                                        <circle cx="360" cy="38" r="35" fill="white" stroke="#10B981" stroke-width="4"/>
+                                        <text x="360" y="45" text-anchor="middle" font-size="22">🎯</text>
+                                        <text x="360" y="92" text-anchor="middle" fill="#059669" font-size="11" font-weight="700">Source of Truth</text>
+                                    </g>
+                                    
+                                    <!-- AJMN badge -->
+                                    <g filter="url(#shadow3d11)">
+                                        <rect x="105" y="20" width="150" height="50" rx="18" fill="white" stroke="url(#gradMain11)" stroke-width="3"/>
+                                        <rect x="105" y="20" width="150" height="20" rx="18" fill="rgba(14, 165, 233, 0.1)"/>
+                                        <text x="180" y="55" text-anchor="middle" fill="#0284C7" font-family="Sora" font-size="20" font-weight="800">AJMN</text>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slide 12: Final -->
+                <section class="slide" data-slide="12">
+                    <div class="slide-inner centered">
+                        <div class="final-content">
+                            <span class="slide-badge">✅ Final Message</span>
+                            <h1 class="slide-title">The goal is not to <span class="gradient">force one tool</span></h1>
+                            
+                            <div class="final-goals">
+                                <div class="goal-item">
+                                    <div class="goal-icon">🔗</div>
+                                    <div class="goal-text">Eliminate<br>data silos</div>
+                                </div>
+                                <div class="goal-item">
+                                    <div class="goal-icon">⚡</div>
+                                    <div class="goal-text">Reduce<br>manual work</div>
+                                </div>
+                                <div class="goal-item">
+                                    <div class="goal-icon">🤝</div>
+                                    <div class="goal-text">Improve<br>coordination</div>
+                                </div>
+                                <div class="goal-item">
+                                    <div class="goal-icon">🤖</div>
+                                    <div class="goal-text">Reliable data<br>for AI</div>
+                                </div>
+                            </div>
+                            
+                            <p class="slide-desc" style="font-size: 1.4rem; margin-top: 40px;">
+                                Airtable enables this <strong style="color: var(--brand-primary)">without replacing specialized systems</strong>
+                            </p>
+                            
+                            <button class="cta-btn">
+                                🚀 Let's Build the Future Together
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="arrows">
+        <button class="arrow-btn" id="prevBtn" onclick="changeSlide(-1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
+        </button>
+        <button class="arrow-btn" id="nextBtn" onclick="changeSlide(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="changeSlide(-1)" title="Previous Slide">
+            <kbd>←</kbd>
+        </button>
+        <button class="nav-btn" onclick="changeSlide(1)" title="Next Slide">
+            <kbd>→</kbd>
+        </button>
+        <span class="nav-separator"></span>
+        <button class="nav-btn" onclick="toggleFullscreen()" title="Fullscreen">
+            <kbd>F</kbd>
+        </button>
+    </div>
+
+    <script>
+        const slideData = [
+            { num: 1, title: 'Executive Summary' },
+            { num: 2, title: 'Why Workflow Tracking' },
+            { num: 3, title: 'Cost of Tools' },
+            { num: 4, title: 'Tool Categories' },
+            { num: 5, title: 'Why Airtable for Media' },
+            { num: 6, title: 'Comparison' },
+            { num: 7, title: 'Teable vs Airtable' },
+            { num: 8, title: 'Integration Model' },
+            { num: 9, title: 'Risks' },
+            { num: 10, title: 'Business Impact' },
+            { num: 11, title: 'AJMN Recommendations' },
+            { num: 12, title: 'Final Message' }
+        ];
+
+        let currentSlide = 1;
+        const totalSlides = slideData.length;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            buildNav();
+            updateUI();
+        });
+
+        function buildNav() {
+            const wrapper = document.getElementById('navWrapper');
+            
+            const group = document.createElement('div');
+            group.className = 'nav-group';
+            group.innerHTML = '<div class="nav-group-title">Presentation</div>';
+            
+            slideData.forEach(slide => {
+                const item = document.createElement('div');
+                item.className = `nav-item ${slide.num === 1 ? 'active' : ''}`;
+                item.onclick = () => goToSlide(slide.num);
+                item.innerHTML = `
+                    <span class="nav-number"><span>${slide.num}</span></span>
+                    <span class="nav-label">${slide.title}</span>
+                `;
+                group.appendChild(item);
+            });
+            
+            wrapper.appendChild(group);
+        }
+
+        function changeSlide(dir) {
+            const next = currentSlide + dir;
+            if (next >= 1 && next <= totalSlides) goToSlide(next);
+        }
+
+        function goToSlide(n) {
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`)?.classList.remove('active');
+            currentSlide = n;
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`)?.classList.add('active');
+            updateUI();
+        }
+
+        function updateUI() {
+            document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.classList.remove('active', 'completed');
+                if (i + 1 === currentSlide) item.classList.add('active');
+                else if (i + 1 < currentSlide) item.classList.add('completed');
+            });
+
+            document.getElementById('progressCounter').textContent = `${currentSlide} / ${totalSlides}`;
+            document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+            
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+            const activeNav = document.querySelector('.nav-item.active');
+            if (activeNav) activeNav.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+            else if (e.key === 'Home') goToSlide(1);
+            else if (e.key === 'End') goToSlide(totalSlides);
+            else if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+        });
+
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        document.addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+        });
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+        }
+    </script>
+</body>
+</html>
